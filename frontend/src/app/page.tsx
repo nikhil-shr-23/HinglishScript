@@ -1,7 +1,16 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Upload, Download, Loader2, FileText, AlertCircle } from "lucide-react";
+import {
+  Upload,
+  Download,
+  Loader2,
+  FileText,
+  AlertCircle,
+  Copy,
+  Check,
+  RefreshCw,
+} from "lucide-react";
 
 export default function Home() {
   const [originalSRT, setOriginalSRT] = useState("");
@@ -9,7 +18,7 @@ export default function Home() {
   const [fileName, setFileName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [isDragging, setIsDragging] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const handleFile = useCallback((file: File) => {
     if (!file.name.endsWith(".srt")) {
@@ -29,26 +38,6 @@ export default function Home() {
     reader.readAsText(file);
   }, []);
 
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      setIsDragging(false);
-
-      const file = e.dataTransfer.files[0];
-      if (file) handleFile(file);
-    },
-    [handleFile],
-  );
-
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  }, []);
-
-  const handleDragLeave = useCallback(() => {
-    setIsDragging(false);
-  }, []);
-
   const handleFileInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
@@ -57,8 +46,17 @@ export default function Home() {
     [handleFile],
   );
 
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setOriginalSRT(e.target.value);
+    setConvertedSRT("");
+    setError("");
+  };
+
   const handleConvert = async () => {
-    if (!originalSRT) return;
+    if (!originalSRT.trim()) {
+      setError("Please paste or upload SRT content first");
+      return;
+    }
 
     setIsLoading(true);
     setError("");
@@ -91,11 +89,20 @@ export default function Home() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = fileName.replace(".srt", "_hinglish.srt");
+    a.download = fileName
+      ? fileName.replace(".srt", "_hinglish.srt")
+      : "converted_hinglish.srt";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  };
+
+  const handleCopy = async () => {
+    if (!convertedSRT) return;
+    await navigator.clipboard.writeText(convertedSRT);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleReset = () => {
@@ -106,41 +113,79 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-background p-6 md:p-12">
-      <div className="mx-auto max-w-6xl">
-        <header className="mb-8">
-          <h1 className="text-2xl font-semibold text-foreground">
-            Hindi → Hinglish SRT Converter
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Convert Devanagari Hindi subtitles to Roman Hindi (Hinglish)
-          </p>
-        </header>
+    <main className="min-h-screen bg-background">
+      <div className="flex h-screen">
+        {/* Left Panel - Input Area */}
+        <div className="flex-1 flex flex-col border-r border-border">
+          {/* Header */}
+          <header className="px-8 py-6 border-b border-border">
+            <h1
+              className="text-3xl font-semibold text-foreground tracking-tight"
+              style={{ fontFamily: "var(--font-heading)" }}
+            >
+              Hindi → Hinglish
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Paste or upload Devanagari Hindi SRT content
+            </p>
+          </header>
 
-        {/* Upload Area */}
-        {!originalSRT && (
-          <div
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            className={`
-              flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-12 transition-all
-              ${
-                isDragging
-                  ? "border-primary bg-primary/5"
-                  : "border-border hover:border-primary/50"
-              }
-            `}
-          >
-            <Upload className="mb-4 h-12 w-12 text-muted-foreground" />
-            <p className="mb-2 text-lg font-medium text-foreground">
-              Drop your .srt file here
-            </p>
-            <p className="mb-4 text-sm text-muted-foreground">
-              or click to browse
-            </p>
-            <label className="cursor-pointer rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">
-              Select File
+          {/* Text Area */}
+          <div className="flex-1 p-6">
+            <textarea
+              value={originalSRT}
+              onChange={handleTextChange}
+              placeholder={`Paste your SRT content here...
+
+Example:
+1
+00:00:01,000 --> 00:00:03,000
+तुम कैसे हो?
+
+2
+00:00:04,000 --> 00:00:06,000
+मुझे देर हो गई`}
+              className="w-full h-full resize-none rounded-xl border border-border bg-card p-6 text-foreground font-mono text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+            />
+          </div>
+
+          {/* Convert Button */}
+          <div className="px-6 pb-6">
+            <button
+              onClick={handleConvert}
+              disabled={isLoading || !originalSRT.trim()}
+              className="w-full flex items-center justify-center gap-3 rounded-xl bg-primary py-4 text-lg font-medium text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Converting...
+                </>
+              ) : (
+                "Convert to Hinglish"
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Right Panel - Actions & Output */}
+        <div className="w-96 flex flex-col bg-card/50">
+          {/* Actions Header */}
+          <div className="px-6 py-6 border-b border-border">
+            <h2
+              className="text-lg font-medium text-foreground"
+              style={{ fontFamily: "var(--font-heading)" }}
+            >
+              Actions
+            </h2>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="p-6 space-y-3">
+            {/* Upload */}
+            <label className="flex items-center gap-3 w-full cursor-pointer rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium text-foreground transition-all hover:bg-accent hover:border-accent">
+              <Upload className="h-5 w-5 text-primary" />
+              <span>Upload .srt file</span>
               <input
                 type="file"
                 accept=".srt"
@@ -148,92 +193,80 @@ export default function Home() {
                 className="hidden"
               />
             </label>
-          </div>
-        )}
 
-        {/* Error Display */}
-        {error && (
-          <div className="mb-6 flex items-center gap-2 rounded-lg bg-destructive/10 p-4 text-destructive">
-            <AlertCircle className="h-5 w-5" />
-            <span>{error}</span>
-          </div>
-        )}
-
-        {/* Content Area */}
-        {originalSRT && (
-          <>
-            {/* Actions */}
-            <div className="mb-6 flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            {fileName && (
+              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary/50 text-sm text-muted-foreground">
                 <FileText className="h-4 w-4" />
-                <span>{fileName}</span>
+                <span className="truncate">{fileName}</span>
               </div>
+            )}
 
-              <div className="flex gap-2 ml-auto">
-                <button
-                  onClick={handleReset}
-                  className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
-                >
-                  Reset
-                </button>
+            {/* Download */}
+            <button
+              onClick={handleDownload}
+              disabled={!convertedSRT}
+              className="flex items-center gap-3 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium text-foreground transition-all hover:bg-accent hover:border-accent disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <Download className="h-5 w-5 text-primary" />
+              <span>Download converted</span>
+            </button>
 
-                <button
-                  onClick={handleConvert}
-                  disabled={isLoading}
-                  className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Converting...
-                    </>
-                  ) : (
-                    "Convert to Hinglish"
-                  )}
-                </button>
+            {/* Copy */}
+            <button
+              onClick={handleCopy}
+              disabled={!convertedSRT}
+              className="flex items-center gap-3 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium text-foreground transition-all hover:bg-accent hover:border-accent disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {copied ? (
+                <>
+                  <Check className="h-5 w-5 text-green-500" />
+                  <span>Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="h-5 w-5 text-primary" />
+                  <span>Copy to clipboard</span>
+                </>
+              )}
+            </button>
 
-                {convertedSRT && (
-                  <button
-                    onClick={handleDownload}
-                    className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700"
-                  >
-                    <Download className="h-4 w-4" />
-                    Download
-                  </button>
-                )}
-              </div>
+            {/* Reset */}
+            <button
+              onClick={handleReset}
+              disabled={!originalSRT && !convertedSRT}
+              className="flex items-center gap-3 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium text-foreground transition-all hover:bg-accent hover:border-accent disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <RefreshCw className="h-5 w-5 text-primary" />
+              <span>Reset</span>
+            </button>
+          </div>
+
+          {/* Error Display */}
+          {error && (
+            <div className="mx-6 flex items-center gap-2 rounded-lg bg-destructive/10 p-4 text-destructive text-sm">
+              <AlertCircle className="h-5 w-5 flex-shrink-0" />
+              <span>{error}</span>
             </div>
+          )}
 
-            {/* Side by Side Preview */}
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="rounded-xl border border-border bg-card p-4">
-                <h2 className="mb-3 text-sm font-medium text-muted-foreground">
-                  Original (Hindi)
-                </h2>
-                <pre className="max-h-[60vh] overflow-auto whitespace-pre-wrap text-sm text-foreground font-mono">
-                  {originalSRT}
+          {/* Output Preview */}
+          <div className="flex-1 flex flex-col px-6 pb-6 pt-3">
+            <h3 className="text-sm font-medium text-muted-foreground mb-3">
+              Output Preview
+            </h3>
+            <div className="flex-1 rounded-xl border border-border bg-card p-4 overflow-auto">
+              {convertedSRT ? (
+                <pre className="whitespace-pre-wrap text-sm text-foreground font-mono">
+                  {convertedSRT}
                 </pre>
-              </div>
-
-              <div className="rounded-xl border border-border bg-card p-4">
-                <h2 className="mb-3 text-sm font-medium text-muted-foreground">
-                  Converted (Hinglish)
-                </h2>
-                {convertedSRT ? (
-                  <pre className="max-h-[60vh] overflow-auto whitespace-pre-wrap text-sm text-foreground font-mono">
-                    {convertedSRT}
-                  </pre>
-                ) : (
-                  <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
-                    {isLoading
-                      ? "Converting..."
-                      : 'Click "Convert to Hinglish" to start'}
-                  </div>
-                )}
-              </div>
+              ) : (
+                <p className="text-sm text-muted-foreground/50 italic">
+                  Converted output will appear here...
+                </p>
+              )}
             </div>
-          </>
-        )}
+          </div>
+        </div>
       </div>
     </main>
   );
