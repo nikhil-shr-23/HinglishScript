@@ -119,11 +119,8 @@ export default function Home() {
         <div className="flex-1 flex flex-col border-r border-border">
           {/* Header */}
           <header className="px-8 py-6 border-b border-border">
-            <h1
-              className="text-3xl font-semibold text-foreground tracking-tight"
-              style={{ fontFamily: "var(--font-heading)" }}
-            >
-              Hindi → Hinglish
+            <h1 className="text-3xl font-semibold text-foreground tracking-tight italic">
+              Boltype
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
               Paste or upload Devanagari Hindi SRT content
@@ -154,7 +151,8 @@ Example:
             <button
               onClick={handleConvert}
               disabled={isLoading || !originalSRT.trim()}
-              className="w-full flex items-center justify-center gap-3 rounded-xl bg-primary py-4 text-lg font-medium text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-3 rounded-xl py-4 text-lg font-medium text-white transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ backgroundColor: "oklch(0.65 0.18 250)" }}
             >
               {isLoading ? (
                 <>
@@ -162,7 +160,7 @@ Example:
                   Converting...
                 </>
               ) : (
-                "Convert to Hinglish"
+                "Convert my subtitles"
               )}
             </button>
           </div>
