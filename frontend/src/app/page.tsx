@@ -248,11 +248,11 @@ Example:
           )}
 
           {/* Output Preview */}
-          <div className="flex-1 flex flex-col px-6 pb-6 pt-3">
+          <div className="px-6 pb-6 pt-3">
             <h3 className="text-sm font-medium text-muted-foreground mb-3">
               Output Preview
             </h3>
-            <div className="flex-1 rounded-xl border border-dashed border-border bg-card p-4 overflow-auto">
+            <div className="h-80 rounded-xl border border-dashed border-border bg-card p-4 overflow-y-auto">
               {convertedSRT ? (
                 <pre className="whitespace-pre-wrap text-sm text-foreground font-mono">
                   {convertedSRT}
