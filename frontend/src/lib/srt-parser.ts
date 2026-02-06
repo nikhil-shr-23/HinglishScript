@@ -6,20 +6,41 @@ export interface SRTBlock {
 
 /**
  * Parse SRT content into structured blocks
+ * Handles various line ending formats (CRLF, LF, CR)
  */
 export function parseSRT(content: string): SRTBlock[] {
   const blocks: SRTBlock[] = [];
-  const rawBlocks = content.trim().split(/\n\n+/);
+  
+  // Normalize line endings to LF
+  const normalized = content
+    .replace(/\r\n/g, "\n")
+    .replace(/\r/g, "\n")
+    .trim();
+  
+  // Split on blank lines (one or more consecutive newlines)
+  const rawBlocks = normalized.split(/\n\n+/);
 
   for (const rawBlock of rawBlocks) {
-    const lines = rawBlock.trim().split("\n");
-    if (lines.length < 3) continue;
+    const trimmedBlock = rawBlock.trim();
+    if (!trimmedBlock) continue;
+    
+    const lines = trimmedBlock.split("\n");
+    if (lines.length < 2) continue;
 
+    // First line should be the index number
+    const indexMatch = lines[0].match(/^\d+$/);
+    if (!indexMatch) continue;
+    
     const index = parseInt(lines[0], 10);
     if (isNaN(index)) continue;
 
+    // Second line should be the timestamp
     const timestamp = lines[1];
-    const text = lines.slice(2);
+    if (!timestamp.includes("-->")) continue;
+    
+    // Remaining lines are the subtitle text
+    const text = lines.slice(2).filter(line => line.trim().length > 0);
+    if (text.length === 0) continue;
 
     blocks.push({ index, timestamp, text });
   }
