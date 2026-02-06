@@ -244,7 +244,7 @@ Example:
           {/* Error Display */}
           {error && (
             <div className="mx-6 flex items-center gap-2 rounded-lg bg-destructive/10 p-4 text-destructive text-sm">
-              <AlertCircle className="h-5 w-5 flex-shrink-0" />
+              <AlertCircle className="h-5 w-5 shrink-0" />
               <span>{error}</span>
             </div>
           )}
