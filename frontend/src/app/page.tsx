@@ -116,9 +116,9 @@ export default function Home() {
     <main className="min-h-screen bg-background">
       <div className="flex h-screen">
         {/* Left Panel - Input Area */}
-        <div className="flex-1 flex flex-col border-r border-border">
+        <div className="flex-1 flex flex-col border-r border-dashed border-border">
           {/* Header */}
-          <header className="px-8 py-6 border-b border-border">
+          <header className="px-8 py-6 border-b border-dashed border-border">
             <h1 className="text-3xl font-semibold text-foreground tracking-tight italic">
               Boltype
             </h1>
@@ -142,7 +142,7 @@ Example:
 2
 00:00:04,000 --> 00:00:06,000
 मुझे देर हो गई`}
-              className="w-full h-full resize-none rounded-xl border border-border bg-card p-6 text-foreground font-mono text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+              className="w-full h-full resize-none rounded-xl border border-dashed border-border bg-card p-6 text-foreground font-mono text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
             />
           </div>
 
@@ -169,7 +169,7 @@ Example:
         {/* Right Panel - Actions & Output */}
         <div className="w-96 flex flex-col bg-card/50">
           {/* Actions Header */}
-          <div className="px-6 py-6 border-b border-border">
+          <div className="px-6 py-6 border-b border-dashed border-border">
             <h2
               className="text-lg font-medium text-foreground"
               style={{ fontFamily: "var(--font-heading)" }}
@@ -181,7 +181,7 @@ Example:
           {/* Action Buttons */}
           <div className="p-6 space-y-3">
             {/* Upload */}
-            <label className="flex items-center gap-3 w-full cursor-pointer rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium text-foreground transition-all hover:bg-accent hover:border-accent">
+            <label className="flex items-center gap-3 w-full cursor-pointer rounded-xl border border-dashed border-border bg-card px-4 py-3 text-sm font-medium text-foreground transition-all hover:bg-accent hover:border-accent">
               <Upload className="h-5 w-5 text-primary" />
               <span>Upload .srt file</span>
               <input
@@ -193,7 +193,7 @@ Example:
             </label>
 
             {fileName && (
-              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary/50 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-lg border border-dashed border-border bg-secondary/50 text-sm text-muted-foreground">
                 <FileText className="h-4 w-4" />
                 <span className="truncate">{fileName}</span>
               </div>
@@ -203,7 +203,7 @@ Example:
             <button
               onClick={handleDownload}
               disabled={!convertedSRT}
-              className="flex items-center gap-3 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium text-foreground transition-all hover:bg-accent hover:border-accent disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex items-center gap-3 w-full rounded-xl border border-dashed border-border bg-card px-4 py-3 text-sm font-medium text-foreground transition-all hover:bg-accent hover:border-accent disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <Download className="h-5 w-5 text-primary" />
               <span>Download converted</span>
@@ -213,7 +213,7 @@ Example:
             <button
               onClick={handleCopy}
               disabled={!convertedSRT}
-              className="flex items-center gap-3 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium text-foreground transition-all hover:bg-accent hover:border-accent disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex items-center gap-3 w-full rounded-xl border border-dashed border-border bg-card px-4 py-3 text-sm font-medium text-foreground transition-all hover:bg-accent hover:border-accent disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {copied ? (
                 <>
@@ -232,7 +232,7 @@ Example:
             <button
               onClick={handleReset}
               disabled={!originalSRT && !convertedSRT}
-              className="flex items-center gap-3 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium text-foreground transition-all hover:bg-accent hover:border-accent disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex items-center gap-3 w-full rounded-xl border border-dashed border-border bg-card px-4 py-3 text-sm font-medium text-foreground transition-all hover:bg-accent hover:border-accent disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <RefreshCw className="h-5 w-5 text-primary" />
               <span>Reset</span>
@@ -241,7 +241,7 @@ Example:
 
           {/* Error Display */}
           {error && (
-            <div className="mx-6 flex items-center gap-2 rounded-lg bg-destructive/10 p-4 text-destructive text-sm">
+            <div className="mx-6 flex items-center gap-2 rounded-lg border border-dashed border-destructive/30 bg-destructive/10 p-4 text-destructive text-sm">
               <AlertCircle className="h-5 w-5 shrink-0" />
               <span>{error}</span>
             </div>
@@ -252,7 +252,7 @@ Example:
             <h3 className="text-sm font-medium text-muted-foreground mb-3">
               Output Preview
             </h3>
-            <div className="flex-1 rounded-xl border border-border bg-card p-4 overflow-auto">
+            <div className="flex-1 rounded-xl border border-dashed border-border bg-card p-4 overflow-auto">
               {convertedSRT ? (
                 <pre className="whitespace-pre-wrap text-sm text-foreground font-mono">
                   {convertedSRT}
