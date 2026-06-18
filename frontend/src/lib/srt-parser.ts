@@ -10,36 +10,33 @@ export interface SRTBlock {
  */
 export function parseSRT(content: string): SRTBlock[] {
   const blocks: SRTBlock[] = [];
-  
+
   // Normalize line endings to LF
-  const normalized = content
-    .replace(/\r\n/g, "\n")
-    .replace(/\r/g, "\n")
-    .trim();
-  
+  const normalized = content.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
+
   // Split on blank lines (one or more consecutive newlines)
   const rawBlocks = normalized.split(/\n\n+/);
 
   for (const rawBlock of rawBlocks) {
     const trimmedBlock = rawBlock.trim();
     if (!trimmedBlock) continue;
-    
+
     const lines = trimmedBlock.split("\n");
     if (lines.length < 2) continue;
 
     // First line should be the index number
     const indexMatch = lines[0].match(/^\d+$/);
     if (!indexMatch) continue;
-    
+
     const index = parseInt(lines[0], 10);
     if (isNaN(index)) continue;
 
     // Second line should be the timestamp
     const timestamp = lines[1];
     if (!timestamp.includes("-->")) continue;
-    
+
     // Remaining lines are the subtitle text
-    const text = lines.slice(2).filter(line => line.trim().length > 0);
+    const text = lines.slice(2).filter((line) => line.trim().length > 0);
     if (text.length === 0) continue;
 
     blocks.push({ index, timestamp, text });
@@ -61,7 +58,7 @@ export function extractTextLines(blocks: SRTBlock[]): string[] {
  */
 export function reconstructSRT(
   blocks: SRTBlock[],
-  convertedLines: string[]
+  convertedLines: string[],
 ): string {
   const result: string[] = [];
 
@@ -76,4 +73,20 @@ export function reconstructSRT(
   }
 
   return result.join("\n").trim();
+}
+
+/**
+ * Convert SRT content to WebVTT so it can be used as a <track> source
+ * for live caption preview on an HTML5 <video> element.
+ */
+export function srtToVTT(srtContent: string): string {
+  const blocks = parseSRT(srtContent);
+
+  const cues = blocks.map((block) => {
+    // WebVTT uses "." as the ms separator instead of SRT's ","
+    const timestamp = block.timestamp.replace(/,/g, ".");
+    return `${timestamp}\n${block.text.join("\n")}`;
+  });
+
+  return ["WEBVTT", "", ...cues].join("\n\n").trim() + "\n";
 }
