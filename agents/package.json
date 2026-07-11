@@ -1,0 +1,14 @@
+{
+  "name": "hinglishscript-agents",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Standalone CLI agents for the HinglishScript captioning pipeline",
+  "bin": {
+    "caption-agent": "./caption-agent.mjs"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "openai": "^6.18.0"
+  }
+}
